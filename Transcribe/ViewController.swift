@@ -90,10 +90,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
 		}else{
 			// pass
 			print("\(#line) did finish")
-			playAudio()
+//			playAudio()
 			transcribeAudio()
 		}
 	}
+	
 	
 	func recordAudio(){
 		let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -152,9 +153,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
 			if result.isFinal {
 				let text = result.bestTranscription.formattedString
 				self.transcribedAudioLabel.text = text
+				self.readAudio()
 			}
 			
 		}
+	}
+	
+	func readAudio(){
+		let utterance = AVSpeechUtterance(string: self.transcribedAudioLabel.text!)
+		utterance.voice = AVSpeechSynthesisVoice(language: "en-GB")
+		utterance.rate = 0.5
+		
+		let synthesizer = AVSpeechSynthesizer()
+		synthesizer.speak(utterance)
 	}
 
 }
