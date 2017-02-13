@@ -18,7 +18,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
 	var timer: Timer!
 	var audioPlayer : AVAudioPlayer?
 	@IBOutlet weak var transcribedAudioLabel: UILabel!
-	var lastSecond : [Double]!
+	var lastTimeInterval : [Double]!
 	let interval = 100 //th of a second
 	
 	override func viewDidLoad() {
@@ -180,8 +180,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
 	}
 
 	func listenToRecording() {
-		if lastSecond == nil {
-			lastSecond =  [Double](repeating: 1.0, count: interval)
+		let secondsOfSilenceDesired = 1.5
+		let readings =  Int(Double(interval) * secondsOfSilenceDesired)
+		if lastTimeInterval == nil {
+			lastTimeInterval =  [Double](repeating: 1.0, count: readings)
 		}
 		if (audioRecorder?.isRecording)! {
 			audioRecorder?.updateMeters()
@@ -189,19 +191,18 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
 			let ALPHA = 0.05;
 			let peakPowerForChannel = pow(10, (ALPHA * peakPower))
 			print("power: \(peakPowerForChannel)")
-			lastSecond.remove(at: 0)
-			lastSecond.append(peakPowerForChannel)
-			if lastSecond.average < 0.05 { // values range from 0 to 1
+			lastTimeInterval.remove(at: 0)
+			lastTimeInterval.append(peakPowerForChannel)
+			if lastTimeInterval.average < 0.05 { // values range from 0 to 1
 				audioRecorder?.stop()
 				self.recordingLabel.alpha = 0
 				timer.invalidate()
 				print("Stop")
 				// turn that button back on here
-				lastSecond =  [Double](repeating: 1.0, count: interval)
+				lastTimeInterval =  [Double](repeating: 1.0, count: readings)
 			}
 		}
 	}
-	
 }
 
 
